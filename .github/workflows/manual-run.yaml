@@ -15,6 +15,10 @@ on:
         description: 'Artist Name'
         required: true
         default: ''
+      skipLines:
+        description: 'Number of lines to skip'
+        required: false
+        default: '0'
 
 jobs:
   build-and-run:
@@ -32,4 +36,4 @@ jobs:
       run: dotnet restore
 
     - name: Run Lyric Helper
-      run: dotnet run --project program/program -- "${{ inputs.videoId }}" "${{ inputs.title }}" "${{ inputs.artist }}"
+      run: dotnet run --project program/program -- "${{ inputs.videoId }}" "${{ inputs.title }}" "${{ inputs.artist }}" "${{ inputs.skipLines }}"
