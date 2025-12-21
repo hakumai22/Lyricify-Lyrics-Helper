@@ -1,0 +1,35 @@
+name: Manual Lyric Generation
+
+on:
+  workflow_dispatch:
+    inputs:
+      videoId:
+        description: 'Video ID'
+        required: true
+        default: ''
+      title:
+        description: 'Song Title'
+        required: true
+        default: ''
+      artist:
+        description: 'Artist Name'
+        required: true
+        default: ''
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Run Lyric Helper
+      run: dotnet run --project program/program -- "${{ inputs.videoId }}" "${{ inputs.title }}" "${{ inputs.artist }}"
