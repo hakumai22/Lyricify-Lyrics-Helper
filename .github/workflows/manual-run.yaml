@@ -16,7 +16,11 @@ on:
         required: true
         default: ''
       skipLines:
-        description: 'Number of lines to skip'
+        description: 'Number of lines to skip (QRC)'
+        required: false
+        default: '0'
+      lrcSkipLines:
+        description: 'Number of lines to skip (LRC)'
         required: false
         default: '0'
 
@@ -36,4 +40,12 @@ jobs:
       run: dotnet restore
 
     - name: Run Lyric Helper
-      run: dotnet run --project program/program -- "${{ inputs.videoId }}" "${{ inputs.title }}" "${{ inputs.artist }}" "${{ inputs.skipLines }}"
+      run: dotnet run --project program/program -- "${{ inputs.videoId }}" "${{ inputs.title }}" "${{ inputs.artist }}" "${{ inputs.skipLines }}" "${{ inputs.lrcSkipLines }}"
+
+    - name: Upload result
+      uses: actions/upload-artifact@v4
+      with:
+        name: lyrics-json
+        path: |
+          lyrics.json
+          lyrics.lrc
