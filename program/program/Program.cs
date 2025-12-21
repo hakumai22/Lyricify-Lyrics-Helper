@@ -6,12 +6,13 @@ using Lyricify.Lyrics.Parsers;
 var searcher = new QQMusicSearcher();
 
 string videoId, title, artist;
-
-if (args.Length == 3)
+int skipLines = 0;
+if (args.Length == 4)
 {
     videoId = args[0];
     title = args[1];
     artist = args[2];
+    skipLines = int.Parse(args[3]);
 }
 else
 {
@@ -22,6 +23,8 @@ else
     title = Console.ReadLine() ?? "";
     Console.WriteLine("Artist:");
     artist = Console.ReadLine() ?? "";
+    Console.WriteLine("Skip Lines:");
+    skipLines = int.Parse(Console.ReadLine() ?? "0");
 }
 var hit = await searcher.SearchForResult(new TrackMultiArtistMetadata
 {
@@ -36,7 +39,7 @@ var qrc = await ProviderHelper.QQMusicApi.GetLyricsAsync(qq.Id);
 if(qrc?.Lyrics == null){Console.WriteLine("QRC Lyric is null"); return;}
 var lyricsData = ParseHelper.ParseLyrics(qrc.Lyrics, LyricsRawTypes.Qrc);
 if(lyricsData == null){Console.WriteLine("Parsed LyricsData is null"); return;}
-string jsonOutput = CustomJsonGenerator.Generate(lyricsData, videoId);
+string jsonOutput = CustomJsonGenerator.Generate(lyricsData, videoId, skipLines);
 Console.WriteLine(jsonOutput);
 // LRCっぽい方が欲しい場合: song Mid を使う
 var lrc = await ProviderHelper.QQMusicApi.GetLyric(qq.Mid);

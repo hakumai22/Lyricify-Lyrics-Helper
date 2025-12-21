@@ -7,7 +7,7 @@ namespace Lyricify.Lyrics.Generators
 {
     public static class CustomJsonGenerator
     {
-        public static string Generate(LyricsData lyricsData, string videoId = "")
+        public static string Generate(LyricsData lyricsData, string videoId = "", int skipLines = 0)
         {
             var output = new
             {
@@ -19,7 +19,7 @@ namespace Lyricify.Lyrics.Generators
                     artist = lyricsData.TrackMetadata?.Artist ?? "",
                     generatedAt = System.DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.ffffffZ")
                 },
-                lines = lyricsData.Lines?.Select((line, index) => {
+                lines = lyricsData.Lines?.Skip(skipLines).Select((line, index) => {
                     if (line is SyllableLineInfo syllableLine)
                     {
                         return new
