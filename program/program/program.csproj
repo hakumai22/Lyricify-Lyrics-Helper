@@ -11,4 +11,8 @@
     <ProjectReference Include="../../Lyricify.Lyrics.Helper/Lyricify.Lyrics.Helper.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="OpenCCNET" Version="1.1.0" />
+  </ItemGroup>
+
 </Project>

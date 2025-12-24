@@ -3,8 +3,14 @@ using Lyricify.Lyrics.Models;
 using Lyricify.Lyrics.Searchers;
 using Lyricify.Lyrics.Generators;
 using Lyricify.Lyrics.Parsers;
+using OpenCCNET;
 using System.Text.RegularExpressions;
 var searcher = new QQMusicSearcher();
+
+var openccBaseDir = AppContext.BaseDirectory;
+ZhConverter.Initialize(
+    dictionaryDirectory: Path.Combine(openccBaseDir, "Dictionary"),
+    jiebaResourceDirectory: Path.Combine(openccBaseDir, "JiebaResource"));
 
 string videoId, title, artist;
 int skipLines = 0;
@@ -39,14 +45,20 @@ var hit = await searcher.SearchForResult(new TrackMultiArtistMetadata
 
 var qq = hit as QQMusicSearchResult;
 if (qq == null) { Console.WriteLine("QQMusicSearchResult is null"); return; }
-async Task outputlyrics(){var qrc = await ProviderHelper.QQMusicApi.GetLyricsAsync(qq.Id);
-if(qrc?.Lyrics == null){Console.WriteLine("QRC Lyric is null"); return;}
-var lyricsData = ParseHelper.ParseLyrics(qrc.Lyrics, LyricsRawTypes.Qrc);
-if(lyricsData == null){Console.WriteLine("Parsed LyricsData is null"); return;}
-string jsonOutput = CustomJsonGenerator.Generate(lyricsData, videoId, skipLines);
-File.WriteAllText("lyrics.json", jsonOutput);
-Console.WriteLine("JSON output saved to lyrics.json");
-Console.WriteLine(jsonOutput);}
+
+async Task outputlyrics()
+{
+    var qrc = await ProviderHelper.QQMusicApi.GetLyricsAsync(qq.Id);
+    if(qrc?.Lyrics == null){Console.WriteLine("QRC Lyric is null"); return;}
+    var lyricsData = ParseHelper.ParseLyrics(qrc.Lyrics, LyricsRawTypes.Qrc);
+    if(lyricsData == null){Console.WriteLine("Parsed LyricsData is null"); return;}
+    var jsonOutput = CustomJsonGenerator.Generate(lyricsData, videoId, skipLines);
+    jsonOutput = ZhConverter.HansToHant(jsonOutput);
+    File.WriteAllText("lyrics.json", jsonOutput);
+    Console.WriteLine("JSON output saved to lyrics.json");
+    Console.WriteLine(jsonOutput);
+}
+
 await outputlyrics();
 
 // LRCっぽい方が欲しい場合: song Mid を使う
@@ -62,6 +74,7 @@ if(lrc != null && lrc.Lyric != null)
         .Skip(lrcSkipLines)
         .ToArray();
     var lrcOutput = string.Join("\n", lrcLines);
+    lrcOutput = ZhConverter.HansToHant(lrcOutput);
     File.WriteAllText("lyrics.lrc", lrcOutput);
     Console.WriteLine("LRC output saved to lyrics.lrc");
     Console.WriteLine(lrcOutput);
