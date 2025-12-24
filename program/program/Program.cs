@@ -39,15 +39,15 @@ var hit = await searcher.SearchForResult(new TrackMultiArtistMetadata
 
 var qq = hit as QQMusicSearchResult;
 if (qq == null) { Console.WriteLine("QQMusicSearchResult is null"); return; }
-
-var qrc = await ProviderHelper.QQMusicApi.GetLyricsAsync(qq.Id);
+async Task outputlyrics(){var qrc = await ProviderHelper.QQMusicApi.GetLyricsAsync(qq.Id);
 if(qrc?.Lyrics == null){Console.WriteLine("QRC Lyric is null"); return;}
 var lyricsData = ParseHelper.ParseLyrics(qrc.Lyrics, LyricsRawTypes.Qrc);
 if(lyricsData == null){Console.WriteLine("Parsed LyricsData is null"); return;}
 string jsonOutput = CustomJsonGenerator.Generate(lyricsData, videoId, skipLines);
 File.WriteAllText("lyrics.json", jsonOutput);
 Console.WriteLine("JSON output saved to lyrics.json");
-Console.WriteLine(jsonOutput);
+Console.WriteLine(jsonOutput);}
+await outputlyrics();
 
 // LRCっぽい方が欲しい場合: song Mid を使う
 var lrc = await ProviderHelper.QQMusicApi.GetLyric(qq.Mid);
