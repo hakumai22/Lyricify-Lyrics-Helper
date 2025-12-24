@@ -367,5 +367,3 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-program/program/lyrics.lrc
-program/program/lyrics.json
