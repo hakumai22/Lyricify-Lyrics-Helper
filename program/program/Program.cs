@@ -3,6 +3,7 @@ using Lyricify.Lyrics.Models;
 using Lyricify.Lyrics.Searchers;
 using Lyricify.Lyrics.Generators;
 using Lyricify.Lyrics.Parsers;
+using System.Text.RegularExpressions;
 var searcher = new QQMusicSearcher();
 
 string videoId, title, artist;
@@ -46,13 +47,23 @@ if(lyricsData == null){Console.WriteLine("Parsed LyricsData is null"); return;}
 string jsonOutput = CustomJsonGenerator.Generate(lyricsData, videoId, skipLines);
 File.WriteAllText("lyrics.json", jsonOutput);
 Console.WriteLine("JSON output saved to lyrics.json");
+Console.WriteLine(jsonOutput);
 
 // LRCっぽい方が欲しい場合: song Mid を使う
 var lrc = await ProviderHelper.QQMusicApi.GetLyric(qq.Mid);
 if(lrc != null && lrc.Lyric != null)
 {
-    var lrcLines = lrc.Lyric.Split('\n').Skip(lrcSkipLines).ToArray();
-    File.WriteAllText("lyrics.lrc", string.Join("\n", lrcLines));
+    var timeTagRegex = new Regex(@"^\[\d{1,2}:\d{2}(\.\d{1,3})?\]");
+    var lrcLines = lrc.Lyric
+        .Replace("\r\n", "\n")
+        .Split('\n')
+        .Select(x => x.TrimEnd('\r'))
+        .Where(x => timeTagRegex.IsMatch(x))
+        .Skip(lrcSkipLines)
+        .ToArray();
+    var lrcOutput = string.Join("\n", lrcLines);
+    File.WriteAllText("lyrics.lrc", lrcOutput);
     Console.WriteLine("LRC output saved to lyrics.lrc");
+    Console.WriteLine(lrcOutput);
 }
 else{Console.WriteLine("LRC Lyric is null");}
